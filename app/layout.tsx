@@ -19,14 +19,21 @@ export const metadata: Metadata = {
   description: '福祉の現場を知るエンジニアとして、現場で使い続けられる業務システムをAIでつくっています。AIアイドル「I♥DOLL」などの映像制作も。',
 };
 
-const fontVars = [noto, jbm, grotesk, dot, vt, mincho, bodoni].map((f) => f.variable).join(' ');
+// sessionStorage の 'michiru-mode'（lib/experience/dom.ts の MODE_KEY）を読む
+const MODE_SCRIPT = `(function(){try{var m=sessionStorage.getItem("michiru-mode");if(m==="creative")document.documentElement.setAttribute("data-mode",m)}catch(e){}})()`;
+
+const fontVars =[noto, jbm, grotesk, dot, vt, mincho, bodoni].map((f) => f.variable).join(' ');
 
 export default function RootLayout({ children }: LayoutProps<'/'>) {
   return (
     // data-mode：いまのモード。スクリプトが engineering / creative を切り替える
-    <html lang="ja" data-mode="engineering" className={fontVars}>
-      {/* locked：オープニングが終わるまでスクロールさせない */}
-      <body className="locked">{children}</body>
+    // suppressHydrationWarning：下の小さなスクリプトが data-mode を書き換えても、React がエラー扱いしないようにする
+    <html lang="ja" data-mode="engineering" className={fontVars} suppressHydrationWarning>
+      <head>
+        {/* 同じタブで前に選んだモードを、画面が描かれる前に反映する（一瞬だけ別の色が見えるのを防ぐ） */}
+        <script dangerouslySetInnerHTML={{ __html: MODE_SCRIPT }} />
+      </head>
+      <body>{children}</body>
     </html>
   );
 }

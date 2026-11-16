@@ -18,10 +18,11 @@ ENGINEERING / CREATIVE の2つのモードを切り替えて、開発の実績�
 
 | ファイル | 中身 |
 |---|---|
-| `lib/content.ts` | 数字・作品・説明文（文章を直すときはここ） |
+| `lib/content.ts` | トップページの数字・作品・説明文（文章を直すときはここ） |
+| `lib/profile.ts` | ABOUT・HOW I BUILD ページの中身 |
 | `lib/visuals.ts` | 作品カードのイメージ図（SVG） |
 | `components/` | 画面の部品（セクション・メニュー・HUDなど） |
-| `lib/experience.js` | 動き（3Dの粒・スクロール演出・カーソル・音・オープニング） |
+| `lib/experience/` | 動き（3Dの粒・スクロール演出・カーソル・音・オープニング）。役目ごとにファイルを分けている（入り口は `index.ts`） |
 | `app/globals.css` | 見た目 |
 
 ## 手元で動かす
@@ -35,7 +36,5 @@ npm run dev
 
 ## これからやること
 
-- 作品の詳しいページ（`/works/[slug]`）、How I Build、About
-- `lib/experience.js` を TypeScript にして、役目ごとにファイルを分ける
-- お問い合わせの連絡先
+- 作品の詳しいページ（`/works/[slug]`）
 - SkillScope の完成後に掲載

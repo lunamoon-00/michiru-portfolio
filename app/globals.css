@@ -25,6 +25,8 @@ html[data-mode="engineering"]{
 html,body{background:var(--bg);color:var(--fg)}
 body{font-family:var(--font-noto),sans-serif;overflow-x:hidden;transition:color .8s}
 body.locked{overflow:hidden}
+/* オープニングが開くまでは、スクロールさせない（オープニングがあるトップページだけ） */
+body:has(#intro:not(.open)){overflow:hidden}
 a{color:inherit;text-decoration:none}
 button{font:inherit;color:inherit}
 
@@ -113,7 +115,8 @@ body.glitching main{animation:shake .45s steps(3) 1}
    カスタムカーソル（照準マーク）。マウスがある端末だけ
    ================================================================ */
 .cur{position:fixed;left:0;top:0;z-index:90;pointer-events:none;display:none}
-@media(pointer:fine){ body,a,button{cursor:none} .cur{display:block} }
+/* fx：動きのスクリプトが動いているページだけ、ふつうのマウスカーソルを照準マークに置きかえる */
+@media(pointer:fine){ html.fx body,html.fx a,html.fx button{cursor:none} html.fx .cur{display:block} }
 .cur-ring{width:38px;height:38px;margin:-19px 0 0 -19px;border:1px solid var(--accent);border-radius:50%;
   transition:width .25s,height .25s,margin .25s,border-color .8s,background .25s}
 .cur-ring::before,.cur-ring::after{content:"";position:absolute;background:var(--accent);transition:background .8s}
@@ -134,7 +137,8 @@ nav{position:fixed;inset:0 0 auto;display:flex;justify-content:space-between;ali
 .logo{font-family:var(--display);font-weight:700;font-size:18px;letter-spacing:.22em}
 .logo span{color:var(--accent);transition:color .8s}
 .links{display:flex;gap:30px;color:var(--muted)}
-.links a{transition:color .3s}.links a:hover{color:var(--fg)}
+.links a{transition:color .3s}.links a:hover,.links a[aria-current="page"]{color:var(--fg)}
+.links a[aria-current="page"]{text-decoration:underline;text-underline-offset:6px;text-decoration-color:var(--accent)}
 @media(max-width:760px){.links{display:none}}
 html[data-mode="creative"] .bignum{letter-spacing:-.02em}
 html[data-mode="engineering"] .bignum{letter-spacing:0;font-size:clamp(150px,30vw,480px)}
@@ -274,6 +278,8 @@ body.ready .reveal:nth-child(5){transition-delay:.48s}
 .btn{border-color:var(--line)}
 .btn.primary{background:var(--accent);border-color:var(--accent);color:#07060d}.btn.primary small{color:#07060d}
 .btn:hover{background:var(--accent);border-color:var(--accent);color:#07060d}.btn:hover small{color:#07060d}
+/* メールソフトがない人のために、アドレスも文字で見せる（選んでコピーできる） */
+.contact .mail{margin-top:22px;font-family:var(--mono),monospace;font-size:13px;letter-spacing:.12em;color:var(--muted);user-select:all}
 footer{position:relative;z-index:5;padding:0 calc(var(--pad) + 14px) 48px;font-family:var(--mono);font-size:10px;letter-spacing:.2em;color:var(--muted)}
 
 /* ================================================================
@@ -346,3 +352,82 @@ footer{position:relative;z-index:5;padding:0 calc(var(--pad) + 14px) 48px;font-f
 .viz [font-family^="Noto"]{font-family:var(--font-noto),sans-serif}
 .viz [font-family^="VT323"]{font-family:var(--font-vt),monospace}
 
+
+/* ================================================================
+   サブページ（ABOUT・HOW I BUILD）
+   ================================================================ */
+.page{position:relative;z-index:5;max-width:1080px;margin:0 auto;padding:150px calc(var(--pad) + 14px) 120px}
+.page-head h1{font-size:clamp(34px,5.6vw,76px);line-height:1.2}
+.page-head .lead{max-width:660px;font-size:16px}
+.block{margin-top:120px}
+.block>h2{font-size:clamp(28px,3.6vw,46px);line-height:1.25;margin-bottom:40px}
+.block>.lead{margin:-16px 0 40px}
+
+/* 数字の帯 */
+.facts{margin-top:56px;display:grid;grid-template-columns:repeat(4,1fr);border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.facts>div{padding:22px 18px 22px 0;margin-right:18px;border-right:1px solid var(--line)}
+.facts>div:last-child{border-right:0;margin-right:0}
+.facts b{display:block;font-family:var(--num);font-weight:var(--nw);font-style:var(--ns);font-size:clamp(30px,4vw,52px);line-height:1}
+.facts span{display:block;margin-top:10px;font-size:12px;line-height:1.6;color:var(--muted)}
+
+/* ストーリー */
+.story{display:grid;gap:18px;max-width:720px}
+.story p{font-size:15px;line-height:2.1;color:var(--fg);opacity:.88}
+.story .quote{font-family:var(--head);font-weight:var(--hw);font-size:clamp(20px,2.4vw,28px);line-height:1.6;opacity:1;
+  padding-left:22px;border-left:2px solid var(--accent)}
+
+/* 経歴 */
+.timeline{list-style:none;border-left:1px solid var(--line);margin-left:6px}
+.timeline li{position:relative;padding:0 0 44px 34px}
+.timeline li:last-child{padding-bottom:0}
+.timeline li::before{content:"";position:absolute;left:-5px;top:4px;width:9px;height:9px;border-radius:50%;background:var(--bg);border:1px solid var(--accent)}
+.timeline li.now::before{background:var(--accent);box-shadow:0 0 12px var(--glow)}
+.timeline time{font-family:var(--mono),monospace;font-size:12px;letter-spacing:.18em;color:var(--accent)}
+.timeline h3{margin-top:8px;font-size:clamp(17px,1.8vw,21px);font-weight:700;line-height:1.5}
+.timeline p{margin-top:8px;font-size:14px;line-height:1.95;color:var(--muted)}
+.timeline ul{margin-top:10px;list-style:none;display:grid;gap:6px}
+.timeline ul li{padding:0 0 0 18px;font-size:14px;line-height:1.85;color:var(--muted)}
+.timeline ul li::before{left:0;top:.9em;width:8px;height:1px;border:0;border-radius:0;background:var(--accent)}
+
+/* スキル */
+.skills{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1px;background:var(--line);border:1px solid var(--line)}
+.skills>div{background:var(--bg);padding:26px 24px}
+.skills h3{font-family:var(--mono),monospace;font-size:11px;letter-spacing:.22em;color:var(--accent);font-weight:500;margin-bottom:16px}
+.skills .chips{margin-top:0}
+
+/* カード（大事にしていること・道具の選び方） */
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:18px}
+.card{border:1px solid var(--line);padding:28px 26px;background:rgba(10,10,18,.6)}
+.card .no{font-family:var(--num);font-weight:var(--nw);font-style:var(--ns);font-size:44px;line-height:1;color:var(--accent)}
+.card h3{margin:14px 0 12px;font-size:18px;font-weight:700;line-height:1.5}
+.card p{font-size:14px;line-height:1.95;color:var(--muted)}
+.card .chips{margin-top:18px}
+
+/* 進め方の5ステップ */
+.steps{list-style:none}
+.step{display:grid;grid-template-columns:190px 1fr;gap:36px;padding:44px 0;border-top:1px solid var(--line)}
+.step:last-child{border-bottom:1px solid var(--line)}
+.step .no{font-family:var(--num);font-weight:var(--nw);font-style:var(--ns);font-size:clamp(60px,7vw,100px);line-height:.9;
+  color:transparent;-webkit-text-stroke:1px var(--accent)}
+.step .en{display:block;margin-top:14px;font-family:var(--mono),monospace;font-size:11px;letter-spacing:.25em;color:var(--accent)}
+.step h3{font-family:var(--head);font-weight:var(--hw);font-size:clamp(22px,2.6vw,32px);line-height:1.4}
+.step p{margin-top:14px;font-size:15px;line-height:2;color:var(--fg);opacity:.85}
+.step .ex{margin-top:20px;padding:16px 20px;border-left:2px solid var(--accent);background:rgba(255,255,255,.03);font-size:14px;line-height:1.9;color:var(--fg)}
+.step .ex small{display:block;margin-bottom:6px;font-family:var(--mono),monospace;font-size:10px;letter-spacing:.25em;color:var(--accent)}
+
+/* ページの終わりのお問い合わせ */
+.page-cta{margin-top:140px;padding-top:60px;border-top:1px solid var(--line)}
+.page-cta h2{font-size:clamp(40px,7vw,96px)}
+.page-cta .ctas{margin-top:36px}
+
+@media(max-width:760px){
+  .page{padding-top:120px}
+  .block{margin-top:90px}
+  .facts{grid-template-columns:repeat(2,1fr)}
+  .facts>div:nth-child(2){border-right:0;margin-right:0}
+  .facts>div:nth-child(-n+2){border-bottom:1px solid var(--line)}
+  .step{grid-template-columns:1fr;gap:14px;padding:36px 0}
+}
+
+/* サブページでは、スクロールした文字がメニューの下に透けないよう、上を背景色でぼかす */
+body:has(.page) nav{background:linear-gradient(var(--bg) 55%,transparent)}

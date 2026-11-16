@@ -3,7 +3,7 @@
 // （0=球, 1=構成図, 2=1h→3min, 3=作品の枠, 4=光の輪, 5=105K）。
 // data-m="eng" / "cre" が付いたものは、そのモードのときだけ表示される。
 import type { CSSProperties } from 'react';
-import { heroStats, numbers, works, type Mode } from '@/lib/content';
+import { CONTACT_EMAIL, heroStats, numbers, works, type Mode } from '@/lib/content';
 import { ModeButtons } from './Nav';
 
 /** CSSの変数（--g など）を style に書くための型 */
@@ -140,6 +140,9 @@ export function Works() {
 // ------------------------------------------------------------------
 // 05 CONTACT
 // ------------------------------------------------------------------
+/** メールソフトを開くリンク。件名を入れておくと、どちらの用件か一目で分かる */
+const mailto = (subject: string) => `mailto:${CONTACT_EMAIL}?subject=${encodeURIComponent(subject)}`;
+
 export function Contact() {
   return (
     <section className="sec contact" id="contact" data-cre="0" data-eng="1" data-name="CONTACT">
@@ -147,9 +150,10 @@ export function Contact() {
         <p className="eyebrow" data-scramble="">05 — CONTACT</p>
         <h2 className="rv">LET&apos;S<br /><em>BUILD.</em></h2>
         <div className="ctas rv">
-          <a href="#" className="btn primary" data-cursor="MAIL"><small>FOR RECRUITERS</small>採用・業務委託のご連絡</a>
-          <a href="#" className="btn" data-cursor="MAIL"><small>FOR CLIENTS</small>MV・映像・仕組み化のご相談</a>
+          <a href={mailto('【採用・業務委託】ポートフォリオを拝見しました')} className="btn primary" data-cursor="MAIL"><small>FOR RECRUITERS</small>採用・業務委託のご連絡</a>
+          <a href={mailto('【ご相談】MV・映像・仕組み化について')} className="btn" data-cursor="MAIL"><small>FOR CLIENTS</small>MV・映像・仕組み化のご相談</a>
         </div>
+        <p className="mail">{CONTACT_EMAIL}</p>
       </div>
     </section>
   );

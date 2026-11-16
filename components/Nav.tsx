@@ -1,4 +1,6 @@
-// 上に固定されるメニュー。ロゴ・モード切替・ページ内リンク
+// 上に固定されるメニュー。ロゴ・モード切替・ページへのリンク
+// ページをまたぐリンクは、ふつうの <a> にしている（ページを読み込み直して、動きのスクリプトを最初から始めるため）
+/* eslint-disable @next/next/no-html-link-for-pages -- 上の理由で、わざと <Link> を使っていない */
 
 export function ModeButtons() {
   return (
@@ -9,18 +11,26 @@ export function ModeButtons() {
   );
 }
 
-export function Nav() {
+const LINKS = [
+  { href: '/#works', label: 'WORKS', cursor: 'JUMP' },
+  { href: '/how-i-build', label: 'HOW I BUILD', cursor: 'OPEN' },
+  { href: '/about', label: 'ABOUT', cursor: 'OPEN' },
+  { href: '/#contact', label: 'CONTACT', cursor: 'JUMP' },
+];
+
+/** @param current いま開いているページ（そのリンクに下線を引く） */
+export function Nav({ current }: { current?: '/how-i-build' | '/about' }) {
   return (
     <nav>
-      <a href="#hero" className="logo">MICHIRU<span>.</span></a>
+      <a href="/" className="logo">MICHIRU<span>.</span></a>
       <div className="mswitch" role="group" aria-label="表示モード">
         <ModeButtons />
       </div>
       <div className="links">
-        <a href="#works" data-scramble="" data-cursor="JUMP">WORKS</a>
-        <a href="#" data-scramble="" data-cursor="SOON">HOW I BUILD</a>
-        <a href="#" data-scramble="" data-cursor="SOON">ABOUT</a>
-        <a href="#contact" data-scramble="" data-cursor="JUMP">CONTACT</a>
+        {LINKS.map((l) => (
+          <a key={l.href} href={l.href} data-scramble="" data-cursor={l.cursor}
+            aria-current={l.href === current ? 'page' : undefined}>{l.label}</a>
+        ))}
       </div>
     </nav>
   );

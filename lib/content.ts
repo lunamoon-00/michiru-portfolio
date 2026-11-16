@@ -3,6 +3,9 @@
 // 数字はすべて 2026年11月時点の実際の値。
 import { welfareSvg, videoAutomationSvg, aiLiveSvg } from './visuals';
 
+/** お問い合わせ先 */
+export const CONTACT_EMAIL = 'lumina.official.me@gmail.com';
+
 /** どちらのモードで見せるか。eng = ENGINEERING、cre = CREATIVE、両方なら undefined */
 export type Mode = 'eng' | 'cre';
 
