@@ -1,0 +1,348 @@
+@import "tailwindcss";
+
+/* 試作（prototype/index.html）から移したスタイル。
+   フォントは next/font が用意する CSS変数（--font-〇〇）で指定している */
+/* ================================================================
+   色とフォントの設定。モードを切り替えると、ここの値が入れ替わる
+   ================================================================ */
+:root{
+  --bg:#06050b; --fg:#f4f1fb; --muted:#aca6bf; --line:rgba(255,255,255,.09);
+  --accent:#d0a8ff; --accent2:#ff8fd1; --glow:rgba(208,168,255,.4);
+  --mono:var(--font-jbm),monospace; --display:var(--font-grotesk),var(--font-noto),sans-serif;
+  --ease:cubic-bezier(.7,0,.2,1); --pad:clamp(16px,4vw,48px);
+}
+/* クリエイティブ：明朝体とイタリックで、映画のタイトルのような上品さ */
+html[data-mode="creative"]{ --head:var(--font-mincho),serif; --hw:900;
+  --num:var(--font-bodoni),serif; --nw:700; --ns:italic; }
+html[data-mode="engineering"]{
+  /* 開発：ドット文字。8bitのゲーム画面・ハッカーの端末のような雰囲気 */
+  --head:var(--font-dot),monospace; --hw:400;
+  --num:var(--font-vt),monospace; --nw:400; --ns:normal;
+  --fg:#e9f6f0; --muted:#9db3a9; --line:rgba(120,255,200,.1);
+  --accent:#5dffb5; --accent2:#4cc9ff; --glow:rgba(93,255,181,.3);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{background:var(--bg);color:var(--fg)}
+body{font-family:var(--font-noto),sans-serif;overflow-x:hidden;transition:color .8s}
+body.locked{overflow:hidden}
+a{color:inherit;text-decoration:none}
+button{font:inherit;color:inherit}
+
+/* 3Dの粒を描くキャンバス。画面全体に敷く */
+#gl{position:fixed;inset:0;width:100%;height:100%;z-index:0;display:block}
+.gridlines{position:fixed;inset:0;z-index:1;pointer-events:none;opacity:0;transition:opacity 1.2s;
+  background-image:linear-gradient(var(--line) 1px,transparent 1px),linear-gradient(90deg,var(--line) 1px,transparent 1px);
+  background-size:56px 56px;mask-image:radial-gradient(ellipse at 60% 45%,#000 10%,transparent 70%)}
+html[data-mode="engineering"] .gridlines{opacity:.55}
+/* クリエイティブ：紫とピンクの星雲がゆっくりただよう */
+.nebula{position:fixed;inset:-20%;z-index:1;pointer-events:none;mix-blend-mode:screen;opacity:0;transition:opacity 1.2s;
+  background:radial-gradient(40% 35% at 70% 30%,rgba(150,80,255,.22),transparent 70%),
+             radial-gradient(35% 30% at 20% 80%,rgba(255,80,190,.15),transparent 70%),
+             radial-gradient(30% 30% at 85% 85%,rgba(90,110,255,.14),transparent 70%);
+  animation:neb 24s ease-in-out infinite alternate}
+html[data-mode="creative"] .nebula{opacity:1}
+@keyframes neb{to{transform:translate(4%,-3%) rotate(8deg) scale(1.08)}}
+.scanlines{position:fixed;inset:0;z-index:30;pointer-events:none;
+  background:repeating-linear-gradient(0deg,rgba(255,255,255,.028) 0 1px,transparent 1px 3px),
+             radial-gradient(ellipse at center,transparent 55%,rgba(0,0,0,.55))}
+
+/* セクションが切り替わるときのグリッチ */
+.flash{position:fixed;inset:0;z-index:31;pointer-events:none;opacity:0;mix-blend-mode:screen;
+  background:repeating-linear-gradient(0deg,rgba(255,79,216,.18) 0 2px,transparent 2px 6px,rgba(61,255,208,.14) 6px 7px,transparent 7px 11px)}
+body.glitching .flash{animation:flash .45s steps(2) 1}
+body.glitching main{animation:shake .45s steps(3) 1}
+@keyframes flash{0%{opacity:1;transform:translateY(-8px)}40%{opacity:.6;transform:translateY(14px)}70%{opacity:.9;transform:translateY(-3px)}100%{opacity:0}}
+@keyframes shake{0%{transform:translate(4px,0);filter:drop-shadow(-3px 0 #ff4fd8) drop-shadow(3px 0 #3dffd0)}50%{transform:translate(-3px,0)}100%{transform:none;filter:none}}
+
+/* ================================================================
+   オープニング演出
+   ================================================================ */
+#intro{position:fixed;inset:0;z-index:60;display:grid;place-items:center;cursor:pointer}
+#intro .half{position:absolute;left:0;right:0;height:50.5%;background:#000;transition:transform 1.1s var(--ease)}
+#intro .half.top{top:0}#intro .half.bottom{bottom:0}
+#intro.open .half.top{transform:translateY(-100%)}
+#intro.open .half.bottom{transform:translateY(100%)}
+#intro .scan{position:absolute;left:0;right:0;top:50%;height:1px;background:linear-gradient(90deg,transparent,#fff,transparent);
+  transform:scaleX(0);transition:transform .5s var(--ease),opacity .4s .7s}
+#intro.flashline .scan{transform:scaleX(1)}#intro.open .scan{opacity:0}
+#intro .center{position:relative;text-align:center;transition:opacity .3s}
+#intro.open .center{opacity:0}
+#count{font-family:var(--mono);font-size:12px;letter-spacing:.4em;color:#8b86a0}
+#count b{display:inline-block;min-width:3ch;color:#fff;font-weight:600}
+.bar{width:min(260px,60vw);height:1px;background:#222;margin:14px auto 0;overflow:hidden}
+.bar i{display:block;height:100%;width:0;background:#fff}
+.skip{position:absolute;bottom:28px;right:28px;font-family:var(--mono);font-size:10px;letter-spacing:.3em;color:#555}
+.glitch{position:relative;font-family:var(--display);font-weight:700;font-size:clamp(48px,11vw,150px);letter-spacing:.12em;color:#fff;opacity:0;display:none}
+#intro.title .glitch{display:block;animation:gin .9s steps(1) forwards}
+#intro.title #count,#intro.title .bar{display:none}
+.glitch::before,.glitch::after{content:attr(data-text);position:absolute;inset:0}
+.glitch::before{color:#ff4fd8;mix-blend-mode:screen;animation:g1 .9s steps(1) infinite}
+.glitch::after{color:#3dffd0;mix-blend-mode:screen;animation:g2 .9s steps(1) infinite}
+.tag{font-family:var(--mono);font-size:11px;letter-spacing:.5em;color:#8b86a0;margin-top:10px;opacity:0;display:none}
+#intro.title .tag{display:block;animation:fade .6s .35s forwards}
+@keyframes gin{0%{opacity:0}10%{opacity:1;transform:skewX(20deg)}20%{opacity:.2}30%{opacity:1;transform:none}45%{transform:translateX(-6px)}55%{transform:none}100%{opacity:1}}
+@keyframes g1{0%{clip-path:inset(10% 0 70% 0);transform:translate(-8px)}25%{clip-path:inset(60% 0 10% 0);transform:translate(6px)}50%{clip-path:inset(30% 0 50% 0);transform:translate(-3px)}75%{clip-path:inset(80% 0 2% 0);transform:translate(9px)}100%{clip-path:inset(0 0 100% 0)}}
+@keyframes g2{0%{clip-path:inset(70% 0 5% 0);transform:translate(7px)}25%{clip-path:inset(15% 0 65% 0);transform:translate(-9px)}50%{clip-path:inset(45% 0 40% 0);transform:translate(4px)}75%{clip-path:inset(5% 0 85% 0);transform:translate(-5px)}100%{clip-path:inset(0 0 100% 0)}}
+@keyframes fade{to{opacity:1}}
+
+/* ================================================================
+   HUD（照準画面のような枠）
+   ================================================================ */
+.hud{position:fixed;inset:0;z-index:45;pointer-events:none;font-family:var(--mono);font-size:10px;letter-spacing:.18em;color:var(--muted)}
+.hud .c{position:absolute;width:18px;height:18px;border:1px solid var(--accent);transition:border-color .8s}
+.hud .tl{top:10px;left:10px;border-right:0;border-bottom:0}
+.hud .tr{top:10px;right:10px;border-left:0;border-bottom:0}
+.hud .bl{bottom:10px;left:10px;border-right:0;border-top:0}
+.hud .br{bottom:10px;right:10px;border-left:0;border-top:0}
+.hud .row{position:absolute;bottom:16px;display:flex;gap:18px;align-items:center}
+.hud .row.l{left:38px}.hud .row.r{right:38px}
+.hud .live{color:var(--accent)}
+.hud .live::before{content:"";display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--accent);margin-right:8px;animation:blink 1.2s steps(1) infinite}
+@keyframes blink{50%{opacity:0}}
+.hud .snd{pointer-events:auto;background:none;border:1px solid var(--line);padding:4px 8px;letter-spacing:.18em;font-size:10px;font-family:var(--mono);color:var(--muted)}
+.hud .snd.on{color:var(--accent);border-color:var(--accent)}
+.hud .marquee{position:absolute;right:14px;top:80px;bottom:60px;width:14px;overflow:hidden;
+  mask-image:linear-gradient(transparent,#000 15%,#000 85%,transparent)}
+.hud .marquee span{display:block;writing-mode:vertical-rl;white-space:nowrap;animation:marq 28s linear infinite}
+@keyframes marq{to{transform:translateY(-50%)}}
+.hud .progress{position:absolute;left:14px;top:80px;bottom:60px;width:1px;background:var(--line)}
+.hud .progress i{position:absolute;left:0;top:0;width:1px;height:100%;background:var(--accent);transform-origin:top;transform:scaleY(0)}
+@media(max-width:760px){.hud .row .opt,.hud .marquee,.hud .row.l,.hud .progress,.hud .live{display:none}.hud .row.l{left:34px}.hud .row.r{right:34px}}
+
+/* ================================================================
+   カスタムカーソル（照準マーク）。マウスがある端末だけ
+   ================================================================ */
+.cur{position:fixed;left:0;top:0;z-index:90;pointer-events:none;display:none}
+@media(pointer:fine){ body,a,button{cursor:none} .cur{display:block} }
+.cur-ring{width:38px;height:38px;margin:-19px 0 0 -19px;border:1px solid var(--accent);border-radius:50%;
+  transition:width .25s,height .25s,margin .25s,border-color .8s,background .25s}
+.cur-ring::before,.cur-ring::after{content:"";position:absolute;background:var(--accent);transition:background .8s}
+.cur-ring::before{left:50%;top:-8px;bottom:-8px;width:1px;transform:translateX(-.5px);
+  mask:linear-gradient(#000 0 8px,transparent 8px calc(100% - 8px),#000 calc(100% - 8px))}
+.cur-ring::after{top:50%;left:-8px;right:-8px;height:1px;transform:translateY(-.5px);
+  mask:linear-gradient(90deg,#000 0 8px,transparent 8px calc(100% - 8px),#000 calc(100% - 8px))}
+.cur-dot{width:4px;height:4px;margin:-2px 0 0 -2px;background:var(--accent);border-radius:50%}
+.cur-label{margin:26px 0 0 26px;font-family:var(--mono);font-size:10px;letter-spacing:.2em;color:var(--accent);white-space:nowrap;opacity:0;transition:opacity .2s}
+body.hovering .cur-ring{width:64px;height:64px;margin:-32px 0 0 -32px;background:rgba(255,255,255,.04)}
+body.hovering .cur-label{opacity:1}
+
+/* ================================================================
+   ナビゲーション
+   ================================================================ */
+nav{position:fixed;inset:0 0 auto;display:flex;justify-content:space-between;align-items:center;z-index:40;
+  padding:24px calc(var(--pad) + 14px);font-family:var(--mono);font-size:12px;letter-spacing:.14em}
+.logo{font-family:var(--display);font-weight:700;font-size:18px;letter-spacing:.22em}
+.logo span{color:var(--accent);transition:color .8s}
+.links{display:flex;gap:30px;color:var(--muted)}
+.links a{transition:color .3s}.links a:hover{color:var(--fg)}
+@media(max-width:760px){.links{display:none}}
+html[data-mode="creative"] .bignum{letter-spacing:-.02em}
+html[data-mode="engineering"] .bignum{letter-spacing:0;font-size:clamp(150px,30vw,480px)}
+/* ナビに常にあるモード切替 */
+.mswitch{display:flex;gap:2px;padding:3px;border:1px solid var(--line);border-radius:999px;background:rgba(10,10,18,.55);backdrop-filter:blur(8px)}
+.mswitch button{background:none;border:0;padding:7px 13px;border-radius:999px;color:var(--muted);font-family:var(--mono);font-size:10px;letter-spacing:.2em;transition:background .4s,color .4s}
+.mswitch button[aria-pressed="true"]{background:var(--accent);color:#07060d}
+
+/* ================================================================
+   共通：セクションと文字
+   ================================================================ */
+main{position:relative;z-index:5;overflow-x:clip}   /* 文字の後ろの影が、画面の横にはみ出さないように */
+.sec{position:relative;min-height:100svh;padding:120px calc(var(--pad) + 14px) 80px;display:flex;flex-direction:column;justify-content:safe center}
+.eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:.25em;color:var(--accent);margin-bottom:26px;display:flex;align-items:center;gap:14px;transition:color .8s}
+.eyebrow::before{content:"";width:34px;height:1px;background:currentColor;flex:none}
+/* モードに合わない中身は隠す（data-m="cre" はクリエイティブだけ、"eng" は開発だけ） */
+html[data-mode="creative"] [data-m="eng"],html[data-mode="engineering"] [data-m="cre"]{display:none!important}
+h1,h2{font-family:var(--head);font-weight:var(--hw);line-height:1.06;letter-spacing:-.01em}
+h1{font-size:clamp(44px,7.4vw,104px)}
+h2{font-size:clamp(36px,6vw,84px)}
+html[data-mode="engineering"] h2{font-size:clamp(32px,4.8vw,72px)}
+h1 em,h2 em{font-style:normal;background:linear-gradient(90deg,var(--accent),var(--accent2));-webkit-background-clip:text;background-clip:text;color:transparent}
+.lead{margin-top:28px;max-width:540px;color:var(--muted);line-height:2;font-size:15px}
+.swap{display:inline-grid}
+.swap>*{grid-area:1/1;transition:transform .8s var(--ease),opacity .6s,filter .6s}
+html[data-mode="creative"] .swap .eng,html[data-mode="engineering"] .swap .cre{transform:translateY(60%);opacity:0;filter:blur(8px);pointer-events:none}
+
+.reveal{opacity:0;transform:translateY(28px);filter:blur(6px);transition:opacity 1s,transform 1.1s var(--ease),filter 1s}
+body.ready .reveal{opacity:1;transform:none;filter:none}
+body.ready .reveal:nth-child(2){transition-delay:.12s}
+body.ready .reveal:nth-child(3){transition-delay:.24s}
+body.ready .reveal:nth-child(4){transition-delay:.36s}
+.rv{clip-path:inset(0 100% 0 0);transform:skewX(-8deg);transition:clip-path .9s var(--ease),transform .9s var(--ease)}
+.sec.in .rv{clip-path:inset(0 0 0 0);transform:none}
+.sec.in .rv:nth-child(2){transition-delay:.1s}.sec.in .rv:nth-child(3){transition-delay:.2s}.sec.in .rv:nth-child(4){transition-delay:.3s}
+
+/* モード切替スイッチ */
+.toggle{margin-top:40px;display:inline-flex;position:relative;border:1px solid var(--line);border-radius:999px;padding:5px;
+  background:rgba(10,10,18,.5);backdrop-filter:blur(10px);font-family:var(--mono);font-size:12px;letter-spacing:.16em}
+.toggle button{position:relative;z-index:1;background:none;border:0;color:var(--muted);padding:13px 24px;transition:color .4s}
+.toggle button[aria-pressed="true"]{color:#07060d}
+.toggle .pill{position:absolute;top:5px;bottom:5px;left:5px;width:calc(50% - 5px);border-radius:999px;
+  background:linear-gradient(90deg,var(--accent),var(--accent2));transition:transform .7s var(--ease)}
+html[data-mode="creative"] .toggle .pill{transform:translateX(100%)}
+.hint{display:block;margin-top:14px;font-family:var(--mono);font-size:10px;letter-spacing:.2em;color:var(--muted)}
+.scroll-cue{position:absolute;left:50%;bottom:44px;transform:translateX(-50%);font-family:var(--mono);font-size:10px;letter-spacing:.3em;color:var(--muted);text-align:center}
+.scroll-cue::after{content:"";display:block;width:1px;height:46px;margin:12px auto 0;background:linear-gradient(var(--accent),transparent);animation:cue 1.6s var(--ease) infinite}
+@keyframes cue{0%{transform:scaleY(0);transform-origin:top}50%{transform:scaleY(1);transform-origin:top}51%{transform-origin:bottom}100%{transform:scaleY(0);transform-origin:bottom}}
+
+#labels{position:fixed;inset:0;z-index:4;pointer-events:none;transition:opacity .5s}
+#labels span{position:absolute;transform:translate(-50%,-190%);font-family:var(--mono);font-size:11px;letter-spacing:.12em;
+  color:var(--accent);background:rgba(3,16,11,.7);border:1px solid var(--line);padding:4px 9px;border-radius:6px;white-space:nowrap}
+
+/* 文字のうしろに、うっすら暗い影を敷く（粒が重なっても読める） */
+.copy,.impact .box,.contact .inner{position:relative}
+.copy::before,.impact .box::before,.contact .inner::before{content:"";position:absolute;inset:-60px -80px;z-index:-1;pointer-events:none;
+  background:radial-gradient(closest-side,rgba(6,5,11,.78),rgba(6,5,11,.45) 60%,transparent)}
+
+/* ---------- 5. トップの強み3つ ---------- */
+.stats{margin-top:30px}
+.stats .grp{display:flex;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.stats .grp>div{padding:16px 24px 16px 0;margin-right:24px;border-right:1px solid var(--line)}
+.stats .grp>div:last-child{border-right:0;margin-right:0;padding-right:0}
+.stats b{display:block;font-family:var(--num);font-weight:var(--nw);font-style:var(--ns);font-size:clamp(26px,3vw,40px);line-height:1;color:var(--fg);white-space:nowrap}
+.stats span{display:block;margin-top:8px;font-size:11px;line-height:1.5;color:var(--muted)}
+body.ready .reveal:nth-child(5){transition-delay:.48s}
+
+/* ---------- IMPACT ---------- */
+.impact{justify-content:flex-end}
+.impact .box{max-width:620px}
+.chips{margin-top:26px;display:flex;flex-wrap:wrap;gap:8px}
+.chips span{font-family:var(--mono);font-size:11px;letter-spacing:.12em;border:1px solid var(--line);padding:6px 12px;border-radius:999px;color:var(--muted)}
+
+/* ---------- 固定して中だけ動くセクション（数字・作品） ---------- */
+.pin{padding:0;display:block}
+.sticky{position:sticky;top:0;height:100svh;overflow:hidden}
+.pin-head{position:absolute;top:110px;left:calc(var(--pad) + 14px);z-index:2}
+
+/* ---------- NUMBERS：巨大な数字が画面を横切る ---------- */
+.numbers{height:calc(var(--n) * 40svh + 100svh)}
+.bignum{position:absolute;left:50%;top:46%;font-family:var(--num);font-weight:var(--nw);font-style:var(--ns);font-weight:700;line-height:1;white-space:nowrap;
+  font-size:clamp(120px,24vw,400px);letter-spacing:-.04em;opacity:0;will-change:transform}
+.bignum .val{position:relative;background:linear-gradient(90deg,var(--accent),#fff 45%,var(--accent2));-webkit-background-clip:text;background-clip:text;color:transparent}
+.bignum .ghost{position:absolute;inset:0;color:transparent;-webkit-text-stroke:1px var(--accent2);opacity:.6;transform:translate(var(--gx,0),var(--gy,0))}
+.numlabel{position:absolute;left:calc(var(--pad) + 14px);right:calc(var(--pad) + 14px);bottom:70px;display:flex;gap:24px;align-items:flex-end;justify-content:space-between;flex-wrap:wrap}
+.numlabel .idx{font-family:var(--mono);font-size:12px;letter-spacing:.25em;color:var(--accent)}
+.numlabel .unit{display:block;font-family:var(--num);font-style:var(--ns);font-size:clamp(26px,3.4vw,46px);font-weight:var(--nw);letter-spacing:.06em;margin-top:6px}
+.numlabel p{max-width:420px;color:var(--muted);font-size:14px;line-height:1.9}
+.numbar{position:absolute;left:calc(var(--pad) + 14px);right:calc(var(--pad) + 14px);bottom:52px;height:1px;background:var(--line)}
+.numbar i{display:block;height:100%;background:var(--accent);transform-origin:left;transform:scaleX(0)}
+
+/* ---------- WORKS：縦スクロールで横に流れる ---------- */
+.works{height:calc(var(--n) * 45svh + 100svh)}
+.track{position:absolute;top:50%;left:0;display:flex;gap:56px;padding:0 calc(50vw - var(--cw) / 2);transform:translateY(-50%);will-change:transform}
+.works{--cw:min(620px,80vw)}
+.wcard{position:relative;flex:none;width:var(--cw);aspect-ratio:var(--ar,16/11);display:flex;flex-direction:column;overflow:hidden;border:1px solid var(--line);background:#08070f;
+  transition:transform .6s var(--ease),opacity .6s,filter .6s;transform:scale(.88);opacity:.35;filter:grayscale(.6)}
+.wcard.active{transform:none;opacity:1;filter:none}
+.wcard .thumb{position:relative;flex:1;min-height:0;overflow:hidden;background:var(--g);transition:transform 1.2s var(--ease)}
+.wcard:hover .thumb{transform:scale(1.06)}
+.wcard .thumb img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+/* イメージ図（SVG）の動き */
+.wcard .thumb .viz{position:absolute;inset:0;width:100%;height:100%}
+.viz .flow{stroke-dasharray:10 12;animation:vflow 1s linear infinite}
+@keyframes vflow{to{stroke-dashoffset:-44}}
+.viz .pulse{transform-box:fill-box;transform-origin:center;animation:vpulse 1.8s ease-out infinite}
+@keyframes vpulse{from{transform:scale(.8);opacity:1}to{transform:scale(1.5);opacity:0}}
+.viz .blink{animation:vblink 1.2s ease-in-out infinite}
+@keyframes vblink{50%{opacity:.2}}
+.viz .grow{transform-box:fill-box;transform-origin:left;animation:vgrow 2.4s var(--ease) infinite}
+@keyframes vgrow{0%{transform:scaleX(0)}40%,100%{transform:scaleX(1)}}
+.wcard .thumb::after{content:"";position:absolute;inset:0;
+  background:repeating-linear-gradient(0deg,rgba(0,0,0,.22) 0 1px,transparent 1px 4px)}
+.wcard .big{position:absolute;right:18px;top:6px;font-family:var(--num);font-weight:var(--nw);font-style:var(--ns);font-size:clamp(70px,11vw,150px);line-height:1;
+  color:transparent;-webkit-text-stroke:1px rgba(255,255,255,.35)}
+.wcard .body{position:relative;flex:none;padding:16px 22px 18px;border-top:1px solid var(--line);background:linear-gradient(180deg,#0e0c18,#08070f)}
+.wcard .meta{font-family:var(--mono);font-size:10px;letter-spacing:.22em;color:var(--accent)}
+.wcard h3{font-family:var(--head);font-weight:var(--hw);font-size:clamp(18px,2.2vw,26px);line-height:1.4;margin-top:6px}
+.wcard .num{margin-top:6px;font-family:var(--num);font-weight:var(--nw);font-style:var(--ns);font-size:clamp(20px,2.4vw,30px)}
+.wcard .num small{font-family:var(--font-noto),sans-serif;font-weight:400;font-size:12px;color:var(--muted);margin-left:10px}
+.wcard.dev .thumb{background:repeating-linear-gradient(-45deg,#0d0c16 0 14px,#13111f 14px 28px)}
+.wcard.dev .num{font-family:var(--mono);font-size:13px;letter-spacing:.25em;color:var(--accent)}
+.wnav{position:absolute;right:calc(var(--pad) + 14px);top:100px;z-index:3;display:flex;align-items:center;gap:14px}
+.wcount{font-family:var(--mono);font-size:12px;letter-spacing:.25em;color:var(--muted)}
+.wnav button{width:48px;height:48px;border:1px solid var(--line);border-radius:50%;background:rgba(8,8,16,.6);color:var(--accent);
+  font-size:18px;transition:background .3s,color .3s,opacity .3s}
+.wnav button:hover{background:var(--accent);border-color:var(--accent);color:#07060d}
+.wnav button:disabled{opacity:.25;pointer-events:none}
+.wcount b{color:var(--accent);font-weight:600}
+
+/* ---------- CONTACT ---------- */
+.contact h2{font-size:clamp(48px,10vw,150px)}
+.ctas{margin-top:48px;display:flex;gap:16px;flex-wrap:wrap}
+.btn{display:inline-flex;flex-direction:column;gap:6px;padding:20px 26px;border:1px solid var(--accent);min-width:260px;
+  background:rgba(8,8,16,.5);transition:background .3s,color .3s}
+.btn small{font-family:var(--mono);font-size:10px;letter-spacing:.2em;color:var(--accent)}
+.btn{border-color:var(--line)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#07060d}.btn.primary small{color:#07060d}
+.btn:hover{background:var(--accent);border-color:var(--accent);color:#07060d}.btn:hover small{color:#07060d}
+footer{position:relative;z-index:5;padding:0 calc(var(--pad) + 14px) 48px;font-family:var(--mono);font-size:10px;letter-spacing:.2em;color:var(--muted)}
+
+/* ================================================================
+   作品をクリックしたときの、画面が崩れて組み上がる遷移
+   ================================================================ */
+#tx{position:fixed;inset:0;z-index:80;pointer-events:none;display:grid;grid-template-rows:repeat(12,1fr)}
+#tx.on{pointer-events:auto}
+#tx i{display:block;background:#05040a;border-top:1px solid var(--line);transform:scaleX(0);transform-origin:var(--o,left);
+  transition:transform .42s var(--ease) var(--d,0s)}
+#tx.on i{transform:scaleX(1)}
+#tx .msg{position:absolute;inset:0;display:grid;place-content:center;text-align:center;gap:14px;opacity:0;transition:opacity .2s}
+#tx.show .msg{opacity:1}
+#tx .msg b{font-family:var(--display);font-size:clamp(28px,5vw,64px)}
+#tx .msg span{font-family:var(--mono);font-size:11px;letter-spacing:.35em;color:var(--accent)}
+
+/* ================================================================
+   作品の詳細パネル（課題 → やったこと → 成果）
+   ================================================================ */
+#case{position:fixed;inset:0;z-index:70;overflow-y:auto;overscroll-behavior:contain;background:var(--bg);
+  opacity:0;visibility:hidden;transition:opacity .3s,visibility 0s .3s}
+#case.open{opacity:1;visibility:visible;transition:opacity .3s}
+#case .close{position:fixed;top:22px;right:calc(var(--pad) + 14px);z-index:2;background:rgba(8,8,16,.85);border:1px solid var(--line);
+  padding:10px 16px;font-family:var(--mono);font-size:11px;letter-spacing:.2em;transition:border-color .3s,color .3s}
+#case .close:hover{border-color:var(--accent);color:var(--accent)}
+#case .wrap{max-width:880px;margin:0 auto;padding:96px calc(var(--pad) + 14px) 120px}
+#case .meta{font-family:var(--mono);font-size:11px;letter-spacing:.25em;color:var(--accent)}
+#case h2{margin-top:14px;font-size:clamp(30px,5vw,60px);line-height:1.2}
+#case .visual{position:relative;margin-top:32px;aspect-ratio:16/9;overflow:hidden;border:1px solid var(--line);background:var(--g,#0d0c16)}
+#case .visual.dev{background:repeating-linear-gradient(-45deg,#0d0c16 0 14px,#13111f 14px 28px)}
+#case .visual img,#case .visual svg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+#case .stat{display:flex;align-items:baseline;gap:18px;flex-wrap:wrap;margin-top:28px;padding:22px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+#case .stat b{font-family:var(--num);font-weight:var(--nw);font-style:var(--ns);font-size:clamp(44px,7vw,84px);line-height:1;
+  background:linear-gradient(90deg,var(--accent),var(--accent2));-webkit-background-clip:text;background-clip:text;color:transparent}
+#case .stat span{color:var(--muted);font-size:14px}
+#case .blk{display:grid;grid-template-columns:160px 1fr;gap:24px;padding:30px 0;border-bottom:1px solid var(--line)}
+#case .blk h4{font-family:var(--mono);font-size:11px;letter-spacing:.22em;color:var(--accent);font-weight:500}
+#case .blk h4 small{display:block;margin-top:8px;font-family:var(--font-noto),sans-serif;font-size:16px;letter-spacing:.05em;font-weight:700;color:var(--fg)}
+#case .blk p,#case .blk li{font-size:15px;line-height:2;color:var(--fg);opacity:.88}
+#case .blk ul{list-style:none;display:grid;gap:8px}
+#case .blk li{position:relative;padding-left:20px}
+#case .blk li::before{content:"";position:absolute;left:0;top:1em;width:9px;height:1px;background:var(--accent)}
+#case .blk strong{color:var(--accent);font-weight:700}
+#case .tags{margin-top:30px;display:flex;flex-wrap:wrap;gap:8px}
+#case .tags span{font-family:var(--mono);font-size:11px;letter-spacing:.12em;border:1px solid var(--line);padding:6px 12px;border-radius:999px;color:var(--muted)}
+#case .links{margin-top:36px;display:flex;gap:14px;flex-wrap:wrap}
+#case .note{margin-top:26px;font-size:12px;line-height:1.8;color:var(--muted)}
+@media(max-width:760px){#case .blk{grid-template-columns:1fr;gap:12px}#case .wrap{padding-top:80px}}
+
+@media(max-width:960px){
+  .hero{justify-content:flex-start;padding-top:46svh}
+  .impact{padding-top:50svh}
+  .copy,.impact .box{text-shadow:0 2px 20px rgba(0,0,0,.85)}
+  #labels{display:none}
+  .scroll-cue{display:none}
+  .numlabel{bottom:96px}
+  .numbar{bottom:80px}
+  .bignum{top:40%}
+  .numlabel p{font-size:13px}
+  .hero .toggle,.hero .hint{display:none}
+  .stats .grp>div{padding-right:14px;margin-right:14px}
+  .stats b{font-size:24px}
+  .sec{padding-bottom:110px}
+  .track{gap:28px}
+  .wnav{top:auto;bottom:74px;right:50%;transform:translateX(50%)}
+}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}.rv{clip-path:none;transform:none}}
+
+/* イメージ図（SVG）の中の文字も、next/font のフォントで表示する */
+.viz [font-family^="JetBrains"]{font-family:var(--font-jbm),monospace}
+.viz [font-family^="Noto"]{font-family:var(--font-noto),sans-serif}
+.viz [font-family^="VT323"]{font-family:var(--font-vt),monospace}
+

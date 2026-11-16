@@ -1,0 +1,211 @@
+// サイトに載せる中身（数字・作品）をまとめたファイル。
+// 文章や数字を直したいときは、基本的にこのファイルだけを書き換えればよい。
+// 数字はすべて 2026年11月時点の実際の値。
+import { welfareSvg, videoAutomationSvg, aiLiveSvg } from './visuals';
+
+/** どちらのモードで見せるか。eng = ENGINEERING、cre = CREATIVE、両方なら undefined */
+export type Mode = 'eng' | 'cre';
+
+// ------------------------------------------------------------------
+// トップの「強み3つ」
+// ------------------------------------------------------------------
+export type HeroStat = { value: string; label: [string, string] };   // label は2行に分けて表示
+
+export const heroStats: Record<Mode, HeroStat[]> = {
+  eng: [
+    { value: '7', label: ['福祉施設に導入した', '業務システム'] },
+    { value: '1h→3min', label: ['作業報告に', 'かかる時間'] },
+    { value: '−80%', label: ['動画1本の', '制作時間'] },
+  ],
+  cre: [
+    { value: '12.4万', label: ['直近1年の', '視聴回数'] },
+    { value: '165', label: ['チャンネル', '登録者'] },
+    { value: '122', label: ['公開した', '動画'] },
+  ],
+};
+
+// ------------------------------------------------------------------
+// NUMBERS：画面を横切る大きな数字
+// ------------------------------------------------------------------
+export type BigNumber = {
+  mode: Mode;
+  value: number;      // カウントアップの行き先
+  prefix?: string;    // 数字の前につく文字（例：−）
+  suffix?: string;    // 数字の後ろにつく文字（例：%）
+  unit: string;       // 英語の見出し
+  text: string;       // 説明文
+};
+
+export const numbers: BigNumber[] = [
+  { mode: 'eng', value: 7, unit: 'SYSTEMS', text: '福祉施設から依頼され、開発・導入した業務システムの数。' },
+  { mode: 'eng', value: 80, prefix: '−', suffix: '%', unit: 'TIME CUT', text: '動画制作フローの自動化で減らした、1本あたりの制作時間。' },
+  { mode: 'eng', value: 20, suffix: '+', unit: 'COURSES', text: 'AIスクールで制作した教材の本数。専門知識のない人にも伝わる言葉で書いています。' },
+  { mode: 'eng', value: 4, unit: 'CLIENTS', text: '業務委託で取引している企業・団体の数。AIスクール、自治体DX、AI系企業、福祉施設。' },
+  { mode: 'cre', value: 124000, unit: 'VIEWS / YEAR', text: 'I♥DOLLとオリジナルMV、2つのYouTubeチャンネルの直近1年間の視聴回数の合計（2026年11月時点）。' },
+  { mode: 'cre', value: 165, unit: 'SUBSCRIBERS', text: 'ゼロから立ち上げたAIアイドル「I♥DOLL」のチャンネル登録者数（2026年11月時点）。' },
+  { mode: 'cre', value: 318, unit: 'HOURS WATCHED', text: '2つのチャンネルが直近1年間に見られた時間の合計（約318時間）。' },
+  { mode: 'cre', value: 122, unit: 'VIDEOS', text: 'I♥DOLLのチャンネルで公開した動画の本数（MV・ショート・短編ドラマ）。' },
+];
+
+// ------------------------------------------------------------------
+// WORKS：作品カードと、押したときに開く詳しい説明
+// ------------------------------------------------------------------
+/** 詳しい説明の1ブロック。[英語の見出し, 日本語の見出し, 本文（文章 or 箇条書き）]。本文には <strong> を使える */
+export type CaseBlock = [en: string, ja: string, body: string | string[]];
+
+export type WorkDetail = {
+  img?: string;                       // 大きな画像（YouTubeのサムネイルなど）。無ければカードのイメージ図を使う
+  dev?: boolean;                      // 開発中（画像の代わりに斜線の模様）
+  stat: [value: string, label: string];
+  blocks: CaseBlock[];
+  tags: string[];
+  links?: [href: string, en: string, ja: string][];
+  note?: string;
+};
+
+export type Work = {
+  mode?: Mode;                        // 片方のモードだけで見せるとき
+  meta: string;                       // カード上の小さい英字（分類）
+  title: string;
+  num: string;                        // カードの数字
+  numNote?: string;                   // 数字の横の説明
+  gradient?: string;                  // 画像の後ろに敷くグラデーション
+  svg?: string;                       // イメージ図（守秘義務のある開発案件）
+  thumb?: string;                     // サムネイル画像
+  dev?: boolean;
+  detail: WorkDetail;
+};
+
+const yt = (id: string) => `https://i.ytimg.com/vi/${id}/maxresdefault.jpg`;
+const CONFIDENTIAL = '※ 守秘義務のため、画像は実際の画面ではなくイメージ図です。';
+
+export const works: Work[] = [
+  {
+    mode: 'eng', meta: 'ENGINEERING / WELFARE', title: '福祉施設の業務システム ×7',
+    num: '1h → 3min', numNote: '作業報告にかかる時間',
+    gradient: 'radial-gradient(circle at 25% 30%,#3dffd0 0,#0b4f53 30%,#07121a 70%)', svg: welfareSvg,
+    detail: {
+      stat: ['1h → 3min', '作業報告にかかる時間'],
+      blocks: [
+        ['PROBLEM', '課題', '就労継続支援B型の事業所。清掃の現場で写真を撮り、事業所に戻ってExcelに入力し、Slackに投稿していました。支援記録は外部の福祉システムの中にあり、APIがないため、ほかの仕組みとつなげられない状態でした。'],
+        ['BUILD', 'つくったもの', [
+          'Slackのタスク通知：代表がタスクを管理し、メンバーが自分のタスクを確認できる',
+          '<strong>作業報告書</strong>：現場で写真を撮って入力し、ボタン1つでSlackに送信',
+          '<strong>支援記録の通知</strong>：書き出したPDFを読み取り、AIで要約して、毎朝8:30にSlackへ',
+          '月末報告書の自動作成：たまった記録から、利用者さんごとに作成',
+          '関係機関へのメール一括送信：パスワード付きファイルにして送る',
+          '作業工程表（作成中）：静岡の現地を訪問し、内職作業の進み方を見て設計',
+          '書類業務のAI要約：モニタリングや個別支援計画書に、Excelのアドインとして追加',
+        ]],
+        ['INSIGHT', '工夫', '支援記録の通知では、「体調不良」だけでは通知しないようにしました。体調の波をコントロールしながら働いている方が多いので、すべて通知すると数が多すぎて、本当に大事な情報が埋もれてしまいます。福祉の現場で3年働いた経験を、AIの判断基準に入れています。'],
+        ['RESULT', '成果', [
+          '作業報告が<strong>約1時間 → 約3分</strong>に。現場スタッフから「とても楽になった」との声',
+          'PDFをGoogleドライブに入れるだけで、毎朝8:30に要注意事項が届く',
+          '最初の1件から信頼をいただき、<strong>7件</strong>の開発につながった',
+        ]],
+      ],
+      tags: ['ヒアリング', '現地訪問', '要件定義', 'Slack', 'Googleドライブ', 'PDF読み取り', 'AI要約', 'Excelアドイン'],
+      note: CONFIDENTIAL,
+    },
+  },
+  {
+    mode: 'eng', meta: 'ENGINEERING / AUTOMATION', title: '動画制作の自動化',
+    num: '−80%', numNote: '1本あたりの制作時間',
+    gradient: 'linear-gradient(130deg,#091a2b,#1f6fff 55%,#5dffb5)', svg: videoAutomationSvg,
+    detail: {
+      stat: ['−80%', '動画1本あたりの制作時間（約5時間 → 30分〜1時間）'],
+      blocks: [
+        ['PROBLEM', '課題', 'AI系企業のコンテンツ制作。動画1本をつくるのに、約5時間かかっていました。'],
+        ['BUILD', 'つくったもの', [
+          '動画の編集作業を、Claude Code・Codexに任せる仕組み',
+          '作業の流れをn8n（エヌエイトエヌ）でつなぎ、人が手を動かす場面を減らした',
+          '必要なところは、After Effectsのスクリプトで自動化',
+        ]],
+        ['RESULT', '成果', ['1本あたり<strong>30分〜1時間</strong>で完成するように（約80%の削減）']],
+      ],
+      tags: ['Claude Code', 'Codex', 'n8n', 'After Effects'],
+      note: CONFIDENTIAL,
+    },
+  },
+  {
+    meta: 'ENGINEERING × CREATIVE', title: 'I♥DOLL AI LIVE SYSTEM',
+    num: '5 AI', numNote: 'キャラクターが自動で会話・配信',
+    gradient: 'conic-gradient(from 200deg at 60% 40%,#ff4fd8,#4cc9ff,#5dffb5,#ff4fd8)', svg: aiLiveSvg,
+    detail: {
+      stat: ['5 AI', 'キャラクターが自動で会話・配信'],
+      blocks: [
+        ['CONCEPT', 'ねらい', 'オリジナルAIアイドル「I♥DOLL」の5人のキャラクターを、動画だけでなく、ライブ配信でも動かすための仕組みです。'],
+        ['BUILD', 'つくったもの', ['Geminiで、キャラクターごとの会話を生成', 'OBSで、会話を配信画面に流す']],
+        ['RESULT', '成果', ['5人のAIキャラクターが、自動で会話しながら配信できるように']],
+      ],
+      tags: ['Gemini', 'OBS', 'キャラクター設計'],
+      note: '※ 画像はイメージ図です。',
+    },
+  },
+  {
+    mode: 'cre', meta: 'CREATIVE / ORIGINAL IP', title: 'I♥DOLL オリジナルAIアイドル',
+    num: '10.5万回', numNote: '直近1年の視聴回数',
+    gradient: 'radial-gradient(circle at 70% 35%,#ffb3e6 0,#7b2d6e 35%,#140814 75%)', thumb: yt('QbhDjxC6-uI'),
+    detail: {
+      img: yt('QbhDjxC6-uI'),
+      stat: ['10.5万回', '直近1年の視聴回数（2026年11月時点）'],
+      blocks: [
+        ['CONCEPT', 'ねらい', 'オリジナルのAIアイドルIPを、ゼロから立ち上げました。'],
+        ['ROLE', '担当', ['企画・世界観・5人のキャラクター設計', '作詞・AI音楽', 'MV・短編ドラマ', 'YouTubeの運用・分析・改善']],
+        ['RESULT', '成果', [
+          '直近1年で<strong>10.5万回</strong>の視聴、<strong>259時間</strong>の再生',
+          'チャンネル登録者<strong>165人</strong>、公開した動画<strong>122本</strong>',
+        ]],
+      ],
+      tags: ['企画', 'キャラクター設計', '作詞', 'AI音楽', 'MV', 'YouTube運用'],
+      links: [
+        ['https://www.youtube.com/watch?v=QbhDjxC6-uI', 'WATCH', 'いちばん見られた動画'],
+        ['https://www.youtube.com/@IDOLL-Official-0713', 'CHANNEL', 'I♥DOLLのチャンネル'],
+      ],
+    },
+  },
+  {
+    mode: 'cre', meta: 'CREATIVE / MUSIC VIDEO', title: 'オリジナルMV「ゆめこもち」',
+    num: '1.9万回', numNote: '作詞・AI音楽・映像・編集をすべて担当',
+    gradient: 'linear-gradient(200deg,#bfe6ff,#3d5bd6 45%,#0d0a2b)', thumb: yt('VErDrvOl2y0'),
+    detail: {
+      img: yt('VErDrvOl2y0'),
+      stat: ['1.9万回', 'チャンネルの直近1年の視聴回数（2026年11月時点）'],
+      blocks: [
+        ['CONCEPT', 'ねらい', '人形劇の世界観でつくった、オリジナルのAI MVです。'],
+        ['ROLE', '担当', ['作詞・AI音楽・映像・編集をすべて担当']],
+        ['RESULT', '成果', ['チャンネル全体で、直近1年に<strong>1.9万回</strong>の視聴、<strong>58.6時間</strong>の再生']],
+      ],
+      tags: ['作詞', 'AI音楽', '映像', '編集'],
+      links: [['https://youtu.be/VErDrvOl2y0', 'WATCH', 'MVを見る']],
+    },
+  },
+  {
+    mode: 'cre', meta: 'CREATIVE / AI DRAMA', title: 'I♥DOLL 短編AIドラマ',
+    num: 'EP.1–2', numNote: 'キャラクターの関係性を物語で広げる',
+    gradient: 'radial-gradient(circle at 40% 60%,#ff8fd1 0,#4a1450 40%,#0a0510 80%)', thumb: yt('4-vUrSAbY3I'),
+    detail: {
+      img: yt('4-vUrSAbY3I'),
+      stat: ['EP.1–2', '公開中'],
+      blocks: [
+        ['CONCEPT', 'ねらい', 'I♥DOLLの世界観を広げるため、キャラクター同士の関係性を、短い物語で描いたシリーズです。'],
+        ['RESULT', '成果', ['EP.1・EP.2を公開']],
+      ],
+      tags: ['AIドラマ', 'キャラクター', 'I♥DOLL'],
+      links: [['https://www.youtube.com/watch?v=4-vUrSAbY3I', 'WATCH', 'ドラマを見る']],
+    },
+  },
+  {
+    mode: 'eng', meta: 'ENGINEERING / IN DEVELOPMENT', title: 'SkillScope',
+    num: 'COMING 2026.12', dev: true,
+    detail: {
+      dev: true,
+      stat: ['COMING', '2026年12月 公開予定'],
+      blocks: [
+        ['CONCEPT', 'ねらい', '求人の分析・学習ログ・面接コーチを1つにした、転職活動のためのアプリです。'],
+        ['STATUS', 'いまの状態', ['開発中です。完成したら、ここで詳しく紹介します。']],
+      ],
+      tags: ['Next.js', 'TypeScript', '開発中'],
+    },
+  },
+];
