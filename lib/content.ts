@@ -1,7 +1,7 @@
 // サイトに載せる中身（数字・作品）をまとめたファイル。
 // 文章や数字を直したいときは、基本的にこのファイルだけを書き換えればよい。
 // 数字はすべて 2026年11月時点の実際の値。
-import { welfareSvg, videoAutomationSvg, aiLiveSvg } from './visuals';
+import { welfareSvg, videoAutomationSvg, aiLiveSvg, skillScopeSvg } from './visuals';
 
 /** お問い合わせ先 */
 export const CONTACT_EMAIL = 'lumina.official.me@gmail.com';
@@ -112,6 +112,40 @@ export const works: Work[] = [
     },
   },
   {
+    mode: 'eng', meta: 'ENGINEERING / FULL STACK', title: 'SkillScope',
+    num: '4 CLOUDS', numNote: 'Vercel・Supabase・Google Cloud・AWSを1つのシステムに',
+    gradient: 'radial-gradient(circle at 30% 40%,#b388ff 0,#3a1d7a 35%,#0a0614 75%)', svg: skillScopeSvg,
+    detail: {
+      stat: ['33', '求人5件から抽出したスキルの種類'],
+      blocks: [
+        ['PROBLEM', '課題', '転職活動で「何を学べば採用に近づくか」が、求人を読んだときの感覚でしか分かりませんでした。学んだことを、面接でうまく説明できないという悩みもありました。'],
+        ['BUILD', 'つくったもの', [
+          '<strong>求人の分析</strong>：求人票を貼ると、AI（Gemini）がスキル名と「必須／歓迎」に分解して保存',
+          '<strong>ダッシュボード</strong>：よく求められるスキルと、「需要が高いのに学習が足りないスキル」をSQLで集計',
+          '<strong>週次の集計</strong>：Python（pandas）のバッチをDockerにして、Google Cloud Runで毎週月曜に自動実行',
+          '<strong>面接コーチ</strong>：AWS Lambda と Amazon Bedrock で、学習ログから質問を作り、回答を「課題→手段→理由→成果」で採点',
+          '<strong>スマホアプリ</strong>：Flutterで学習ログを記録。Webと同じデータベースを使う',
+        ]],
+        ['INSIGHT', '工夫', [
+          '「自分のデータしか見えない」をデータベース側（RLS）で保証。画面のコードにミスがあっても、他人のデータは返らない',
+          '強い鍵はブラウザに置かない。AWS側にも置かず、ログインの証明書でデータベースに問い合わせる',
+          '本番でログインできない・通信できない（CORS）といったトラブルを、実際の通信の中身を確かめて原因を特定し、解決した',
+        ]],
+        ['RESULT', '成果', [
+          '実際の求人5件を分析し、<strong>33種類</strong>のスキルを抽出',
+          'Gemini が求人の<strong>60%</strong>、AIで開発する道具（Cursor・Claude Code・ChatGPT）が<strong>40%</strong>に登場。「生成AIを使って開発できること」が求められていると数字で分かった',
+          'その上位のスキルを実際に使うシステムとして、このSkillScope自体を作った',
+        ]],
+      ],
+      tags: ['Next.js', 'TypeScript', 'Supabase', 'PostgreSQL', 'Python', 'Docker', 'Google Cloud Run', 'AWS Lambda', 'Amazon Bedrock', 'Gemini', 'Flutter', 'Vercel'],
+      links: [
+        ['https://github.com/lunamoon-00/skill-scope', 'GITHUB', 'コードと設計を見る'],
+        ['https://skill-scope-delta.vercel.app/', 'DEMO', 'アプリを開く（ログインが必要です）'],
+      ],
+      note: '※ 画像はイメージ図です。',
+    },
+  },
+  {
     mode: 'eng', meta: 'ENGINEERING / AUTOMATION', title: '動画制作の自動化',
     num: '−80%', numNote: '1本あたりの制作時間',
     gradient: 'linear-gradient(130deg,#091a2b,#1f6fff 55%,#5dffb5)', svg: videoAutomationSvg,
@@ -196,19 +230,6 @@ export const works: Work[] = [
       ],
       tags: ['AIドラマ', 'キャラクター', 'I♥DOLL'],
       links: [['https://www.youtube.com/watch?v=4-vUrSAbY3I', 'WATCH', 'ドラマを見る']],
-    },
-  },
-  {
-    mode: 'eng', meta: 'ENGINEERING / IN DEVELOPMENT', title: 'SkillScope',
-    num: 'COMING 2026.12', dev: true,
-    detail: {
-      dev: true,
-      stat: ['COMING', '2026年12月 公開予定'],
-      blocks: [
-        ['CONCEPT', 'ねらい', '求人の分析・学習ログ・面接コーチを1つにした、転職活動のためのアプリです。'],
-        ['STATUS', 'いまの状態', ['開発中です。完成したら、ここで詳しく紹介します。']],
-      ],
-      tags: ['Next.js', 'TypeScript', '開発中'],
     },
   },
 ];

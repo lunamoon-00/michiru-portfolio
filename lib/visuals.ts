@@ -7,3 +7,40 @@ export const videoAutomationSvg = "<svg class=\"viz\" viewBox=\"0 0 1600 950\" p
 
 export const aiLiveSvg = "<svg class=\"viz\" viewBox=\"0 0 1600 950\" preserveAspectRatio=\"xMidYMin slice\" aria-hidden=\"true\"><defs><linearGradient id=\"avg\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"var(--accent)\"/><stop offset=\"1\" stop-color=\"var(--accent2)\"/></linearGradient></defs><rect width=\"1600\" height=\"950\" fill=\"#07040d\" opacity=\".72\"/><text x=\"60\" y=\"72\" font-family=\"JetBrains Mono, monospace\" font-size=\"22\" letter-spacing=\"5\" fill=\"var(--accent)\">CONCEPT VISUAL — AI LIVE SYSTEM</text><rect x=\"80\" y=\"110\" width=\"940\" height=\"520\" rx=\"18\" fill=\"#0a0612\" fill-opacity=\".8\" stroke=\"var(--accent)\" stroke-opacity=\".35\"/><rect x=\"110\" y=\"140\" width=\"104\" height=\"42\" rx=\"6\" fill=\"#ff3b5c\"/><text x=\"162\" y=\"170\" font-family=\"JetBrains Mono, monospace\" font-size=\"22\" font-weight=\"600\" text-anchor=\"middle\" fill=\"#fff\">LIVE</text><text x=\"240\" y=\"170\" font-family=\"JetBrains Mono, monospace\" font-size=\"18\" fill=\"#9a94ad\">AUTO TALK · 5 CHARACTERS</text><g transform=\"translate(210 430)\">  <circle r=\"64\" fill=\"url(#avg)\" opacity=\"0.6\"/>  <circle cy=\"-14\" r=\"22\" fill=\"#0a0612\" opacity=\".55\"/>  <path d=\"M-38 42 Q0 4 38 42\" fill=\"#0a0612\" opacity=\".55\"/></g><g transform=\"translate(370 430)\">  <circle r=\"64\" fill=\"url(#avg)\" opacity=\"0.95\"/>  <circle cy=\"-14\" r=\"22\" fill=\"#0a0612\" opacity=\".55\"/>  <path d=\"M-38 42 Q0 4 38 42\" fill=\"#0a0612\" opacity=\".55\"/></g><g transform=\"translate(530 430)\">  <circle r=\"64\" fill=\"url(#avg)\" opacity=\"0.6\"/>  <circle cy=\"-14\" r=\"22\" fill=\"#0a0612\" opacity=\".55\"/>  <path d=\"M-38 42 Q0 4 38 42\" fill=\"#0a0612\" opacity=\".55\"/></g><g transform=\"translate(690 430)\">  <circle r=\"64\" fill=\"url(#avg)\" opacity=\"0.95\"/>  <circle cy=\"-14\" r=\"22\" fill=\"#0a0612\" opacity=\".55\"/>  <path d=\"M-38 42 Q0 4 38 42\" fill=\"#0a0612\" opacity=\".55\"/></g><g transform=\"translate(850 430)\">  <circle r=\"64\" fill=\"url(#avg)\" opacity=\"0.6\"/>  <circle cy=\"-14\" r=\"22\" fill=\"#0a0612\" opacity=\".55\"/>  <path d=\"M-38 42 Q0 4 38 42\" fill=\"#0a0612\" opacity=\".55\"/></g><g transform=\"translate(310 270)\"><rect width=\"120\" height=\"60\" rx=\"30\" fill=\"#f4f1fb\" fill-opacity=\".92\"/><circle class=\"blink\" style=\"animation-delay:0.0s\" cx=\"36\" cy=\"30\" r=\"7\" fill=\"#0a0612\"/><circle class=\"blink\" style=\"animation-delay:0.2s\" cx=\"60\" cy=\"30\" r=\"7\" fill=\"#0a0612\"/><circle class=\"blink\" style=\"animation-delay:0.4s\" cx=\"84\" cy=\"30\" r=\"7\" fill=\"#0a0612\"/><path d=\"M50 58 L60 76 L70 58Z\" fill=\"#f4f1fb\" fill-opacity=\".92\"/></g><g transform=\"translate(630 270)\"><rect width=\"120\" height=\"60\" rx=\"30\" fill=\"#f4f1fb\" fill-opacity=\".92\"/><circle class=\"blink\" style=\"animation-delay:0.6s\" cx=\"36\" cy=\"30\" r=\"7\" fill=\"#0a0612\"/><circle class=\"blink\" style=\"animation-delay:0.8s\" cx=\"60\" cy=\"30\" r=\"7\" fill=\"#0a0612\"/><circle class=\"blink\" style=\"animation-delay:1.0s\" cx=\"84\" cy=\"30\" r=\"7\" fill=\"#0a0612\"/><path d=\"M50 58 L60 76 L70 58Z\" fill=\"#f4f1fb\" fill-opacity=\".92\"/></g><rect x=\"1060\" y=\"110\" width=\"460\" height=\"520\" rx=\"18\" fill=\"#0a0612\" fill-opacity=\".8\" stroke=\"var(--accent)\" stroke-opacity=\".35\"/><text x=\"1086\" y=\"152\" font-family=\"JetBrains Mono, monospace\" font-size=\"18\" letter-spacing=\"3\" fill=\"#9a94ad\">COMMENTS</text><circle cx=\"1110\" cy=\"190\" r=\"16\" fill=\"#f4f1fb\" fill-opacity=\".25\"/><rect x=\"1140\" y=\"182\" width=\"300\" height=\"16\" rx=\"8\" fill=\"#f4f1fb\" fill-opacity=\".22\"/><circle cx=\"1110\" cy=\"280\" r=\"16\" fill=\"#f4f1fb\" fill-opacity=\".25\"/><rect x=\"1140\" y=\"272\" width=\"220\" height=\"16\" rx=\"8\" fill=\"#f4f1fb\" fill-opacity=\".22\"/><circle cx=\"1110\" cy=\"370\" r=\"16\" fill=\"#f4f1fb\" fill-opacity=\".25\"/><rect x=\"1140\" y=\"362\" width=\"260\" height=\"16\" rx=\"8\" fill=\"#f4f1fb\" fill-opacity=\".22\"/><g transform=\"translate(1086 426)\"><rect width=\"400\" height=\"72\" rx=\"14\" fill=\"var(--accent)\" fill-opacity=\".14\" stroke=\"var(--accent)\"/>  <text x=\"20\" y=\"30\" font-family=\"JetBrains Mono, monospace\" font-size=\"16\" fill=\"var(--accent)\">AI REPLY</text>  <rect x=\"20\" y=\"44\" width=\"300\" height=\"12\" rx=\"6\" fill=\"var(--accent)\" fill-opacity=\".6\"/></g><text x=\"1086\" y=\"590\" font-family=\"JetBrains Mono, monospace\" font-size=\"16\" fill=\"#9a94ad\">Gemini · ElevenLabs · OBS</text></svg>";
 
+
+// SkillScope：求人から抽出したスキルのランキングと、5つのクラウドをつなぐ構成のイメージ図
+const ssBars = [
+  ['Gemini', 60], ['TypeScript', 40], ['Python', 40], ['SQL', 40], ['Next.js', 40], ['Claude Code', 40],
+]
+  .map(([name, pct], i) => {
+    const y = 170 + i * 80;
+    const w = (Number(pct) / 60) * 470;
+    return `<text x="0" y="${y}" font-family="JetBrains Mono, monospace" font-size="24" fill="#e9e6f6">${name}</text>` +
+      `<text x="560" y="${y}" font-family="JetBrains Mono, monospace" font-size="22" text-anchor="end" fill="var(--accent)">${pct}%</text>` +
+      `<rect x="0" y="${y + 16}" width="560" height="14" rx="7" fill="#ffffff" fill-opacity=".08"/>` +
+      `<rect class="grow" x="0" y="${y + 16}" width="${w}" height="14" rx="7" fill="var(--accent)"/>`;
+  })
+  .join('');
+
+const ssNodes = [
+  ['Vercel', 'Next.js', 250], ['Supabase', 'PostgreSQL · RLS', 350], ['Cloud Run', 'Python · Docker', 450],
+  ['AWS Lambda', 'Bedrock', 550], ['Flutter', 'Mobile', 650],
+]
+  .map(([name, sub, y]) =>
+    `<path class="flow" d="M776 450 C 880 450, 900 ${y}, 1000 ${y}" fill="none" stroke="var(--accent2)" stroke-width="3" stroke-opacity=".7"/>` +
+    `<g transform="translate(1000 ${Number(y) - 44})"><rect width="420" height="88" rx="16" fill="#120c22" stroke="var(--accent)" stroke-opacity=".6" stroke-width="2"/>` +
+    `<text x="28" y="40" font-family="JetBrains Mono, monospace" font-size="26" fill="#e9e6f6">${name}</text>` +
+    `<text x="28" y="70" font-family="JetBrains Mono, monospace" font-size="18" fill="#9a94ad">${sub}</text></g>`,
+  )
+  .join('');
+
+export const skillScopeSvg =
+  `<svg class="viz" viewBox="0 0 1600 950" preserveAspectRatio="xMidYMin slice" aria-hidden="true">` +
+  `<rect width="1600" height="950" fill="#0a0614" opacity=".78"/>` +
+  `<text x="60" y="72" font-family="JetBrains Mono, monospace" font-size="22" letter-spacing="5" fill="var(--accent)">CONCEPT VISUAL — SKILL RADAR</text>` +
+  `<text x="120" y="130" font-family="Noto Sans JP, sans-serif" font-size="22" fill="#9a94ad">求人5件から抽出したスキル（登場率）</text>` +
+  `<g transform="translate(120 70)">${ssBars}</g>` +
+  `<circle class="pulse" cx="760" cy="450" r="34" fill="none" stroke="var(--accent)" stroke-width="2"/>` +
+  `<circle cx="760" cy="450" r="16" fill="var(--accent)"/>` +
+  ssNodes +
+  `</svg>`;
