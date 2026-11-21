@@ -152,7 +152,7 @@ export const works: Work[] = [
     detail: {
       stat: ['249', 'API の自動テスト（税の計算・他人のデータが見えないことも確認）'],
       blocks: [
-        ['PROBLEM', '課題', '2026年から、家族2人がフリーランスになりました。レシートの整理、科目分け、源泉徴収、控除、消費税…と、確定申告は「知らないこと」と「手間」のかたまりです。会計ソフトの借方・貸方の画面も、初心者にはむずかしいものでした。'],
+        ['PROBLEM', '課題', '2026年から、夫婦2人ともフリーランスになりました。レシートの整理、科目分け、源泉徴収、控除、消費税…と、確定申告は「知らないこと」と「手間」のかたまりです。会計ソフトの借方・貸方の画面も、初心者にはむずかしいものでした。'],
         ['BUILD', 'つくったもの', [
           '<strong>LINEで記録</strong>：レシートや控除証明書の写真を送ると、AI（Gemini）が読み取って記録。自信があるものは自動で確定し、あやしいものだけ「確認待ち」に',
           '<strong>freee連携</strong>：確定した記録を、OAuthでつないだfreeeに自動登録。直したら送りなおし、消したらfreeeでも消す',
@@ -168,14 +168,14 @@ export const works: Work[] = [
         ['RESULT', '成果', [
           '設計から公開まで、<strong>8つのPhase・PR 18本</strong>で完成',
           '自動テスト：API <strong>249件</strong>・AWSの設定 25件・画面 40件（E2Eはスマホとパソコンの両方）',
-          '本物のレシートをLINEで送り、約13秒で自動記録されるところまで確認。家族2人で2026年分の申告に使う',
+          '本物のレシートをLINEで送り、約13秒で自動記録されるところまで確認。夫婦2人で2026年分の申告に使う',
         ]],
       ],
       tags: ['AWS CDK', 'Lambda', 'API Gateway', 'Cognito', 'Aurora PostgreSQL', 'SQS', 'EventBridge', 'CloudWatch', 'Python', 'Next.js', 'TypeScript', 'GitHub Actions', 'LINE API', 'freee API', 'Gemini'],
       links: [
         ['https://github.com/lunamoon-00/shinkoku-note', 'GITHUB', 'コードと設計を見る'],
       ],
-      note: '※ 画像はイメージ図です。家族の税の情報をあつかうため、アプリは一般公開していません。',
+      note: '※ 画像はイメージ図です。夫婦の税の情報をあつかうため、アプリは一般公開していません。',
     },
   },
   {
