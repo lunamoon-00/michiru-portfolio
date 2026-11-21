@@ -44,3 +44,55 @@ export const skillScopeSvg =
   `<circle cx="760" cy="450" r="16" fill="var(--accent)"/>` +
   ssNodes +
   `</svg>`;
+// 申告ノート：LINEにレシートを送る → AWSの裏側で読み取り・記録 → freee と確定申告へ、のイメージ図
+const snMono = 'font-family="JetBrains Mono, monospace"';
+const snJp = 'font-family="Noto Sans JP, sans-serif"';
+const snPipe = [
+  ['API Gateway', 'Webhook', 190], ['SQS', 'queue · DLQ', 300], ['Lambda', 'Python · Gemini', 410], ['Aurora', 'PostgreSQL · RLS', 520],
+]
+  .map(([name, sub, y]) =>
+    `<g transform="translate(640 ${Number(y) - 40})"><rect width="300" height="80" rx="14" fill="#120c22" stroke="var(--accent)" stroke-opacity=".6" stroke-width="2"/>` +
+    `<text x="24" y="36" ${snMono} font-size="24" fill="#e9e6f6">${name}</text>` +
+    `<text x="24" y="64" ${snMono} font-size="16" fill="#9a94ad">${sub}</text></g>`,
+  )
+  .join('') +
+  [230, 340, 450].map((y) => `<path d="M790 ${y} L790 ${y + 30}" stroke="var(--accent)" stroke-opacity=".5" stroke-width="3"/>`).join('');
+
+const snOut = [
+  ['freee', '取引・振替伝票に自動登録', 250], ['確定申告', '税額のめやす・申告の日に入れる数字', 420],
+]
+  .map(([name, sub, y]) =>
+    `<path class="flow" d="M940 520 C 1020 520, 1020 ${y}, 1080 ${y}" fill="none" stroke="var(--accent2)" stroke-width="3" stroke-opacity=".7"/>` +
+    `<g transform="translate(1080 ${Number(y) - 60})"><rect width="440" height="120" rx="18" fill="var(--accent)" fill-opacity=".1" stroke="var(--accent)" stroke-width="2"/>` +
+    `<text x="28" y="52" ${snJp} font-size="32" font-weight="700" fill="#e9e6f6">${name}</text>` +
+    `<text x="28" y="90" ${snJp} font-size="19" fill="#bdb6d6">${sub}</text></g>`,
+  )
+  .join('');
+
+export const shinkokuSvg =
+  `<svg class="viz" viewBox="0 0 1600 950" preserveAspectRatio="xMidYMin slice" aria-hidden="true">` +
+  `<rect width="1600" height="950" fill="#0a0614" opacity=".78"/>` +
+  `<text x="60" y="72" ${snMono} font-size="22" letter-spacing="5" fill="var(--accent)">CONCEPT VISUAL — RECEIPT → LEDGER → TAX RETURN</text>` +
+  // スマホ（LINE のトーク画面）
+  `<g transform="translate(120 110)"><rect width="320" height="560" rx="38" fill="#0f0a1c" stroke="var(--accent)" stroke-width="3"/>` +
+  `<rect x="120" y="18" width="80" height="10" rx="5" fill="var(--accent)" opacity=".4"/>` +
+  `<text x="28" y="78" ${snJp} font-size="24" font-weight="700" fill="#e9e6f6">申告ノート</text>` +
+  `<g transform="translate(150 110)"><rect width="140" height="180" rx="12" fill="#f4f1fb" fill-opacity=".92"/>` +
+  `<text x="70" y="34" ${snMono} font-size="16" text-anchor="middle" fill="#0a0612">RECEIPT</text>` +
+  [60, 84, 108].map((y) => `<rect x="18" y="${y}" width="104" height="8" rx="4" fill="#0a0612" fill-opacity=".25"/>`).join('') +
+  `<text x="122" y="158" ${snMono} font-size="20" text-anchor="end" fill="#0a0612">¥1,980</text></g>` +
+  `<g transform="translate(24 320)"><rect width="272" height="150" rx="18" fill="var(--accent)" fill-opacity=".16" stroke="var(--accent)" stroke-opacity=".6"/>` +
+  `<text x="20" y="40" ${snJp} font-size="20" font-weight="700" fill="#e9e6f6">記録したよ ✓</text>` +
+  `<text x="20" y="76" ${snJp} font-size="17" fill="#bdb6d6">文具店　¥1,980</text>` +
+  `<text x="20" y="106" ${snJp} font-size="17" fill="#bdb6d6">仕事の道具（消耗品費）</text>` +
+  `<text x="20" y="134" ${snMono} font-size="15" fill="var(--accent)">AUTO CONFIRMED</text></g>` +
+  `<circle class="pulse" cx="160" cy="520" r="30" fill="none" stroke="var(--accent)" stroke-width="2"/>` +
+  `<circle cx="160" cy="520" r="14" fill="var(--accent)"/></g>` +
+  // スマホ → AWS
+  `<path class="flow" d="M440 390 C 540 390, 540 190, 640 190" fill="none" stroke="var(--accent2)" stroke-width="4"/>` +
+  `<circle r="10" fill="var(--accent2)"><animateMotion dur="1.6s" repeatCount="indefinite" path="M440 390 C 540 390, 540 190, 640 190"/></circle>` +
+  `<text x="640" y="124" ${snMono} font-size="18" letter-spacing="3" fill="#9a94ad">AWS · CDK</text>` +
+  snPipe + snOut +
+  `<g transform="translate(1080 560)"><rect width="440" height="96" rx="48" fill="var(--accent)" fill-opacity=".12" stroke="var(--accent)"/>` +
+  `<text x="220" y="64" font-family="VT323, monospace" font-size="54" text-anchor="middle" fill="var(--accent)">249 TESTS PASSED</text></g>` +
+  `</svg>`;

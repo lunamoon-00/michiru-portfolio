@@ -1,7 +1,7 @@
 // サイトに載せる中身（数字・作品）をまとめたファイル。
 // 文章や数字を直したいときは、基本的にこのファイルだけを書き換えればよい。
 // 数字はすべて 2026年11月時点の実際の値。
-import { welfareSvg, videoAutomationSvg, aiLiveSvg, skillScopeSvg } from './visuals';
+import { welfareSvg, videoAutomationSvg, aiLiveSvg, skillScopeSvg, shinkokuSvg } from './visuals';
 
 /** お問い合わせ先 */
 export const CONTACT_EMAIL = 'lumina.official.me@gmail.com';
@@ -143,6 +143,39 @@ export const works: Work[] = [
         ['https://skill-scope-delta.vercel.app/', 'DEMO', 'アプリを開く（ログインが必要です）'],
       ],
       note: '※ 画像はイメージ図です。',
+    },
+  },
+  {
+    mode: 'eng', meta: 'ENGINEERING / AWS', title: '申告ノート',
+    num: '1 PHOTO', numNote: 'LINEにレシートを送るだけで、帳簿から確定申告まで',
+    gradient: 'radial-gradient(circle at 70% 35%,#7c5cff 0,#25124f 38%,#08050f 75%)', svg: shinkokuSvg,
+    detail: {
+      stat: ['249', 'API の自動テスト（税の計算・他人のデータが見えないことも確認）'],
+      blocks: [
+        ['PROBLEM', '課題', '2026年から、家族2人がフリーランスになりました。レシートの整理、科目分け、源泉徴収、控除、消費税…と、確定申告は「知らないこと」と「手間」のかたまりです。会計ソフトの借方・貸方の画面も、初心者にはむずかしいものでした。'],
+        ['BUILD', 'つくったもの', [
+          '<strong>LINEで記録</strong>：レシートや控除証明書の写真を送ると、AI（Gemini）が読み取って記録。自信があるものは自動で確定し、あやしいものだけ「確認待ち」に',
+          '<strong>freee連携</strong>：確定した記録を、OAuthでつないだfreeeに自動登録。直したら送りなおし、消したらfreeeでも消す',
+          '<strong>確定申告の準備</strong>：質問に答えると税額のめやすが出る。所得控除・減価償却・給与所得・インボイスの消費税（2割特例・簡易課税）まで',
+          '<strong>銀行・カードのCSV</strong>と<strong>毎月の固定費</strong>も自動で記録。同じものは二度記録しない',
+          '<strong>AWSをすべてコードで</strong>：CDKでCognito・API Gateway・Lambda・SQS・Aurora・S3・EventBridge・CloudWatchを組み、GitHub Actionsから鍵なし（OIDC）で自動公開',
+        ]],
+        ['INSIGHT', '工夫', [
+          '税の数字（控除額・税率・償却率）は、記憶で書かずに国税庁・e-Govで確かめ、<strong>出典URLつき</strong>でデータベースに保存',
+          '「借方の合計＝貸方の合計」はデータベースのトリガーで保証。自分のデータしか見えないことも、RLS（行レベルセキュリティ）とテストで二重に守る',
+          'LINEは数秒で返事しないと失敗扱いになるので、受け取り係はキューに入れるだけにして、重い処理は裏で。失敗したらやりなおし、最後はメールで知らせる',
+        ]],
+        ['RESULT', '成果', [
+          '設計から公開まで、<strong>8つのPhase・PR 18本</strong>で完成',
+          '自動テスト：API <strong>249件</strong>・AWSの設定 25件・画面 40件（E2Eはスマホとパソコンの両方）',
+          '本物のレシートをLINEで送り、約13秒で自動記録されるところまで確認。家族2人で2026年分の申告に使う',
+        ]],
+      ],
+      tags: ['AWS CDK', 'Lambda', 'API Gateway', 'Cognito', 'Aurora PostgreSQL', 'SQS', 'EventBridge', 'CloudWatch', 'Python', 'Next.js', 'TypeScript', 'GitHub Actions', 'LINE API', 'freee API', 'Gemini'],
+      links: [
+        ['https://github.com/lunamoon-00/shinkoku-note', 'GITHUB', 'コードと設計を見る'],
+      ],
+      note: '※ 画像はイメージ図です。家族の税の情報をあつかうため、アプリは一般公開していません。',
     },
   },
   {
